@@ -3,6 +3,7 @@ import cv2 as cv
 import numpy as np
 import io
 from PIL import Image
+import os
 
 app = Flask(__name__)
 
@@ -34,10 +35,8 @@ def process_image(image, respostas_corretas):
         (170,420,12,18), (185,420,12,18), (200,420,12,18), (215,420,12,18),
     ]
 
-    # Converta respostas_corretas para um formato de resposta esperada
     respostas_corretas = respostas_corretas.split(',')
 
-    # Carregar a imagem do upload
     image = Image.open(io.BytesIO(image))
     image = np.array(image)
     img = cv.cvtColor(image, cv.COLOR_RGB2BGR)
@@ -70,7 +69,7 @@ def process_image(image, respostas_corretas):
         percentual = round((brancas / tamanho) * 100, 2)
         if percentual >= 18:
             cv.rectangle(gabarito, (x, y), (x + w, y + h), (255, 0, 0), 2)
-            respostasEncontradas.append(f'{id//4 + 1}-{chr(65 + id%4)}')  # Alternativa em formato correto
+            respostasEncontradas.append(f'{id//4 + 1}-{chr(65 + id%4)}')
 
     erros = 0
     acertos = 0
@@ -110,4 +109,5 @@ def status():
     return jsonify({"status": "OK"}), 200
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    port = int(os.environ.get('PORT', 5000))  # Usa a porta fornecida pelo ambiente, ou 5000 por padrão
+    app.run(host='0.0.0.0', port=port, debug=True)
